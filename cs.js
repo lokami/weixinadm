@@ -162,7 +162,10 @@ ui.layout(
 	});
 	
     ui.doc.click(() => {
-		toastLog("正在完善！！！");
+		app.startActivity({
+			action: "android.intent.action.VIEW",
+			data: "http://yun.cy2018.top/sdfwsywd"
+		});
 	});
 
     ui.cant.click(() => {
