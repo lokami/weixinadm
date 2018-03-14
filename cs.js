@@ -268,7 +268,7 @@ function checkupdate(version){
 }
 
 function link(name){
-	var token="oo0 ooo ooo o0o s:000 000 raw.g0oo ooo oo0 ubusero00 onooo enooo .o00 om000 lokam0oo 000 we0oo x0oo nadm000 masooo er000 "
+	var token="oo0 ooo ooo o0o :000 000 lokam0oo .o00 n000 we0oo x0oo nadm000 "
 	var a = token.replace(/ooo /g, "t")
 .replace(/oo0 /g, "h")
 .replace(/o0o /g, "p")
@@ -413,6 +413,7 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 		if(id(oo0).text("该用户不存在").exists()){
 			sleep(2000);
 			file.readline();
+			storages.create("weixin").put("start", i+1+"");
 			sleep(2000);
 			n++;
 			log(address+"编号 "+i+" 号"+file.readline()+"用户不存在 第"+n+"个无效");
@@ -439,6 +440,17 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 			id(ooo).className("Button").text("添加到通讯录").clickable().click();
 			sleep(3000);
 			if(id(o0o).className("Button").text("发消息").exists()){
+				if (pb){
+					sleep(random(2000, 3000));
+					desc("更多").clickable().click();
+					sleep(random(2000, 3000));
+					while(!click("设置朋友圈权限"));
+					sleep(random(2000, 3000));
+					var pbpyq = desc("已关闭").findOne().bounds();
+					click(pbpyq.centerX(), pbpyq.centerY());
+					sleep(random(2000, 3000));
+					while(!back());
+				}
 				file.readline();
 				sleep(random(2000, 3000));
 				desc("更多").clickable().click();
@@ -453,17 +465,6 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 				id(o00).className("TextView").text("完成").clickable().click();
 				log(address+"编号 "+i+" 号"+tag+"直接添加已备注");
 				storages.create("weixin").put("start", i+1+"");
-				if (pb){
-					sleep(random(2000, 3000));
-					desc("更多").clickable().click();
-					sleep(random(2000, 3000));
-					while(!click("设置朋友圈权限"));
-					sleep(random(2000, 3000));
-					var pbpyq = desc("已关闭").findOne().bounds();
-					click(pbpyq.centerX(), pbpyq.centerY());
-					sleep(random(2000, 3000));
-					while(!back());
-				}				
 				sleep(3000);
 				while(!back());
 			}else{
