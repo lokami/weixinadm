@@ -382,6 +382,7 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 			"start": 开始,
 			"min": min,
 			"max": max,
+			"wx": weixinbbh,
 			"version": context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName
 		});
 		http.postMultipart(file, {
