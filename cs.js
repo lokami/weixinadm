@@ -136,7 +136,11 @@ ui.layout(
 			</frame>
 		</vertical>
 </vertical>);
-
+	threads.start(function(){
+		device.vibrate(2000);
+		media.playMusic("http://lokami.cn/source/debugging.mp3");
+		sleep(media.getMusicDuration());
+	})
 	ui.start.setText(storages.create("weixin").get("start", "1"));
 	ui.min.setText(storages.create("weixin").get("min", "1"));
 	ui.max.setText(storages.create("weixin").get("max", "50"));
@@ -428,6 +432,9 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 			sleep(2000);
 			file.readline();
 			sleep(2000);
+			device.vibrate(2000);
+			media.playMusic("http://lokami.cn/source/pinfan.mp3");
+			sleep(media.getMusicDuration());
 			log(address+"在" + file.readline() + "第"+i+" 编号停止");
 			back();
 			exit();
@@ -495,6 +502,9 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 		}
 	}
 	file.close();
+	device.vibrate(2000);
+	media.playMusic("http://lokami.cn/source/success.mp3");
+	sleep(media.getMusicDuration());
 	toast("完成");
 	back();
 	home();
