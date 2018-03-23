@@ -182,7 +182,7 @@ ui.layout(
     ui.pyq.click(() => {
 		if (device.sdkInt < 24){
 			ui.pyq.setChecked(false);
-			toastLog("屏蔽朋友圈暂时只支持安卓7.0以上的设备");
+			toast("屏蔽朋友圈暂时只支持安卓7.0以上的设备");
 		storages.create("weixin").put("pyq", false);
 		}
 		storages.create("weixin").put("pyq", ui.pyq.checked);
@@ -410,7 +410,22 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 		sleep(1000);
 		setText("");
 		sleep(8000);
-		setText(file.readline());
+		var weixinh = file.readline();
+		if(weixinh==null){
+			log("请查看结束点是否大于文档内容");
+			device.vibrate(2000);
+			media.playMusic("http://lokami.cn/source/cut.mp3");
+			sleep(media.getMusicDuration());
+			exit();
+		}else if(weixinh==""){
+			log("请查看文档第"+i+"个选手是否有手机号");
+			device.vibrate(2000);
+			media.playMusic("http://lokami.cn/source/null.mp3");
+			sleep(media.getMusicDuration());
+			exit();
+		}else{
+			setText(weixinh);
+		}
 		sleep(4000);
 		click("搜索");
 		log(address+"编号 "+i+" 号"+"已搜索");
@@ -493,7 +508,10 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 				var tag = file.readline();
 				input(1, tag);
 				sleep(3000);
-				id(o00).className("TextView").text("发送").clickable().click();
+				while(currentActivity() == "com.tencent.mm.plugin.profile.ui.SayHiWithSnsPermissionUI"){
+					id(o00).className("TextView").text("发送").clickable().click();
+					sleep(2000);
+				}
 				log(address+"编号 "+i+" 号"+tag+"已发送");
 				storages.create("weixin").put("start", i+1+"");
 				sleep(3000);
