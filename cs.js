@@ -181,9 +181,14 @@ ui.layout(
 	
     ui.pyq.click(() => {
 		if (device.sdkInt < 24){
-			ui.pyq.setChecked(false);
-			toast("屏蔽朋友圈暂时只支持安卓7.0以上的设备");
-		storages.create("weixin").put("pyq", false);
+			var root = shell("", true).code;
+			if(root){
+				ui.pyq.setChecked(false);
+				toast("屏蔽朋友圈暂时只支持安卓7.0以上或已ROOT的设备");
+				storages.create("weixin").put("pyq", false);
+			}else{
+				storages.create("weixin").put("pyq", ui.pyq.checked);
+			}
 		}
 		storages.create("weixin").put("pyq", ui.pyq.checked);
 	});
@@ -464,13 +469,23 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 			sleep(3000);
 			if(id(o0o).className("Button").text("发消息").exists()){
 				if (pb){
+					if (device.sdkInt < 24){
 					sleep(random(2000, 3000));
-					desc("更多").clickable().click();
+						desc("更多").clickable().click();
 					sleep(random(2000, 3000));
-					while(!click("设置朋友圈权限"));
+						while(!click("设置朋友圈权限"));
 					sleep(random(2000, 3000));
-					var pbpyq = desc("已关闭").findOne().bounds();
-					click(pbpyq.centerX(), pbpyq.centerY());
+						var pbpyq = desc("已关闭").findOne().bounds();
+						Tap(pbpyq.centerX(), pbpyq.centerY());
+					}else{
+					sleep(random(2000, 3000));
+						desc("更多").clickable().click();
+					sleep(random(2000, 3000));
+						while(!click("设置朋友圈权限"));
+					sleep(random(2000, 3000));
+						var pbpyq = desc("已关闭").findOne().bounds();
+						click(pbpyq.centerX(), pbpyq.centerY());
+					}
 					sleep(random(2000, 3000));
 					while(!back());
 				}
@@ -493,8 +508,12 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 			}else{
 				sleep(2000);
 				if (pb){
-					var pbpyq = desc("已关闭").findOne();
-					click(pbpyq.bounds().centerX(), pbpyq.bounds().centerY());
+					var pbpyq = desc("已关闭").findOne().bounds();
+					if (device.sdkInt < 24){
+						Tap(pbpyq.centerX(), pbpyq.centerY());
+					}else{
+						click(pbpyq.centerX(), pbpyq.centerY());						
+					}
 				}
 				sleep(7000);
 				setText(0, 开头);
