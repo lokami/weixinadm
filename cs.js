@@ -414,7 +414,7 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 		waitForActivity("com.tencent.mm.plugin.search.ui.FTSAddFriendUI");
 		sleep(1000);
 		setText("");
-		sleep(8000);
+		sleep(random(5000, 7000));
 		var weixinh = file.readline();
 		if(weixinh==null){
 			log("请查看结束点是否大于文档内容");
@@ -431,10 +431,10 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 		}else{
 			setText(weixinh);
 		}
-		sleep(4000);
+		sleep(random(2000, 3000));
 		click("搜索");
 		log(address+"编号 "+i+" 号"+"已搜索");
-		sleep(3000);
+		sleep(random(2000, 3000));
 		if(id(oo0).text("该用户不存在").exists()){
 			sleep(2000);
 			file.readline();
@@ -463,51 +463,51 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 			sleep(2000);
 			n++;
 			log(address+file.readline()+"重复添加"+" "+i+" 号, 第"+n+"个无效");
-			back();
+			while(!back());
 		}else{
 			id(ooo).className("Button").text("添加到通讯录").clickable().click();
-			sleep(3000);
+			sleep(random(2000, 3000));
 			if(id(o0o).className("Button").text("发消息").exists()){
 				if (pb){
 					if (device.sdkInt < 24){
-					sleep(random(2000, 3000));
+						sleep(1000);
 						desc("更多").clickable().click();
-					sleep(random(2000, 3000));
+						sleep(1000);
 						while(!click("设置朋友圈权限"));
-					sleep(random(2000, 3000));
+						sleep(1000);
 						var pbpyq = desc("已关闭").findOne().bounds();
 						Tap(pbpyq.centerX(), pbpyq.centerY());
 					}else{
-					sleep(random(2000, 3000));
+						sleep(1000);
 						desc("更多").clickable().click();
-					sleep(random(2000, 3000));
+						sleep(1000);
 						while(!click("设置朋友圈权限"));
-					sleep(random(2000, 3000));
+						sleep(1000);
 						var pbpyq = desc("已关闭").findOne().bounds();
 						click(pbpyq.centerX(), pbpyq.centerY());
 					}
-					sleep(random(2000, 3000));
-					while(!back());
+						sleep(1000);
+						while(!back());
 				}
 				file.readline();
-				sleep(random(2000, 3000));
+				sleep(1000);
 				desc("更多").clickable().click();
-				sleep(random(2000, 3000));
+				sleep(1000);
 				while(!click("设置备注及标签"));
-				sleep(7000);
+				sleep(random(3000, 4000));
 				setText(0, address);
-				sleep(4000);
+				sleep(1000);
 				var tag = file.readline();
 				input(0, tag);
-				sleep(3000);
+				sleep(1000);
 				id(o00).className("TextView").text("完成").clickable().click();
 				log(address+"编号 "+i+" 号"+tag+"直接添加已备注");
 				storages.create("weixin").put("start", i+1+"");
-				sleep(3000);
+				sleep(1000);
 				while(!back());
 			}else{
-				sleep(2000);
 				if (pb){
+					sleep(500);
 					var pbpyq = desc("已关闭").findOne().bounds();
 					if (device.sdkInt < 24){
 						Tap(pbpyq.centerX(), pbpyq.centerY());
@@ -515,25 +515,25 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 						click(pbpyq.centerX(), pbpyq.centerY());						
 					}
 				}
-				sleep(7000);
+				sleep(random(2000, 3000));
 				setText(0, 开头);
-				sleep(5000);
+				sleep(random(3000, 4000));
 				input(0, file.readline());
-				sleep(5000);
+				sleep(random(2000, 3000));
 				input(0, 尾巴);
-				sleep(6000);
+				sleep(random(3000, 4000));
 				setText(1, address);
-				sleep(5000);
+				sleep(random(2000, 4000));
 				var tag = file.readline();
 				input(1, tag);
-				sleep(3000);
+				sleep(2000);
 				while(currentActivity() == "com.tencent.mm.plugin.profile.ui.SayHiWithSnsPermissionUI"){
 					id(o00).className("TextView").text("发送").clickable().click();
 					sleep(2000);
 				}
 				log(address+"编号 "+i+" 号"+tag+"已发送");
 				storages.create("weixin").put("start", i+1+"");
-				sleep(3000);
+				sleep(1000);
 				while(!back());
 			}
 		}
