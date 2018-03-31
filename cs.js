@@ -322,6 +322,7 @@ function 反馈问题(){
 		"imei": device.getIMEI(),
 		"device": device.brand + " " + device.model,
 		"version": ve,
+		"wx": context.getPackageManager().getPackageInfo("com.tencent.mm", 0).versionName,
 		"banbenhao": context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName
 	});
 	toastLog("完成");
