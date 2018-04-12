@@ -82,6 +82,19 @@ ui.layout(
 					text="清理txt文档"/>
 			</horizontal>
 			
+			<horizontal gravity="center">
+				<checkbox
+					id="yuyin"
+					w="auto"
+					marginRight="20dp"
+					text="语音+震动"/>
+				<checkbox
+					id="beizhu"
+					w="auto"
+					marginLeft="20dp"
+					text="备注带真名"/>
+			</horizontal>
+			
 			<text
 				text="设置验证消息头尾"
 				textStyle="bold"
@@ -136,18 +149,23 @@ ui.layout(
 			</frame>
 		</vertical>
 </vertical>);
-	threads.start(function(){
-		device.vibrate(2000);
-		media.playMusic("http://lokami.cn/source/debugging.mp3");
-		sleep(media.getMusicDuration());
-	})
 	ui.start.setText(storages.create("weixin").get("start", "1"));
 	ui.min.setText(storages.create("weixin").get("min", "1"));
 	ui.max.setText(storages.create("weixin").get("max", "50"));
 	ui.head.setText(storages.create("weixin").get("head", "请问是 "));
 	ui.tail.setText(storages.create("weixin").get("tail", " 吗？"));
 	ui.pyq.setChecked(storages.create("weixin").get("pyq", false));
+	ui.beizhu.setChecked(storages.create("weixin").get("beizhu", false));
+	ui.yuyin.setChecked(storages.create("weixin").get("yuyin", true));
 
+	var audio = "http://fanyi.baidu.com/gettts?lan=zh&spd=5&text=";
+	if(ui.yuyin.checked){
+		threads.start(function(){
+			device.vibrate(2000);
+			media.playMusic(audio+"欢迎使用！请先检查声音大小以保证可以收听提示");
+			sleep(media.getMusicDuration());
+		});
+	}
 	
 	threads.start(function(){
 		var remoto = http.get(link("") + "version");
@@ -181,18 +199,27 @@ ui.layout(
 	
     ui.pyq.click(() => {
 		if (device.sdkInt < 24){
-			var root = shell("", true).code;
-			if(root){
+			if(files.isFile("/system/xbin/su")||files.isFile("/system/bin/su")||files.isFile("/su/bin/su")){
+				if(shell("", true).code){
+					ui.pyq.setChecked(false);
+					toast("屏蔽朋友圈暂时只支持安卓7.0以上或已ROOT的设备");
+				}
+			}else{
 				ui.pyq.setChecked(false);
 				toast("屏蔽朋友圈暂时只支持安卓7.0以上或已ROOT的设备");
-				storages.create("weixin").put("pyq", false);
-			}else{
-				storages.create("weixin").put("pyq", ui.pyq.checked);
 			}
 		}
 		storages.create("weixin").put("pyq", ui.pyq.checked);
 	});
 	
+	ui.beizhu.click(() => {
+		storages.create("weixin").put("beizhu", ui.beizhu.checked);
+	});
+
+	ui.yuyin.click(() => {
+		storages.create("weixin").put("yuyin", ui.yuyin.checked);
+	});
+
     ui.ok.click(() => {
 		var 开始 = ui.start.text();
 		var min = ui.min.text();
@@ -200,6 +227,7 @@ ui.layout(
 		var head = ui.head.text();
 		var tail = ui.tail.text();
 		var pyq = ui.pyq.checked;
+		var bz = ui.beizhu.checked;
 		
 		storages.create("weixin").put("start", 开始);
 		storages.create("weixin").put("min", min);
@@ -215,7 +243,7 @@ ui.layout(
 			}else{
 				threads.shutDownAll();
 				threads.start(function(){
-					文档起止开编号(min,max,开始,head,tail, pyq);
+					文档起止开编号(min,max,开始,head,tail, pyq, bz);
 				});
 		}
 	});
@@ -335,7 +363,7 @@ function qq(){
 	});
 }
 
-function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
+function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb ,真名){
 	let min = parseInt(min);
 	let max = parseInt(max);
 	let 开始 = parseInt(开始);
@@ -392,6 +420,9 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 			"start": 开始,
 			"min": min,
 			"max": max,
+			"pyq": pb,
+			"beizhu": 真名,
+			"wx": weixinbbh,
 			"wx": weixinbbh,
 			"version": context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName
 		});
@@ -412,28 +443,36 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 	
 	for(let i = 开始; i <= max;i++){
 		log(address+"编号 "+i+" 号"+"开始");
-		waitForActivity("com.tencent.mm.plugin.search.ui.FTSAddFriendUI");
+		if(weixinbbh == "6.6.6"){
+			waitForActivity("com.tencent.mm.plugin.fts.ui.FTSAddFriendUI");
+		}else{
+			waitForActivity("com.tencent.mm.plugin.search.ui.FTSAddFriendUI");
+		}
 		sleep(1000);
 		setText("");
 		sleep(random(5000, 7000));
 		var weixinh = file.readline();
 		if(weixinh==null){
-			log("请查看结束点是否大于文档内容");
-			device.vibrate(2000);
-			media.playMusic("http://lokami.cn/source/cut.mp3");
-			sleep(media.getMusicDuration());
+			toastLog("请查看结束点是否大于文档内容");
+			if(ui.yuyin.checked){
+				device.vibrate(2000);
+				media.playMusic(audio+"数据中断，请检查结束点是否正确");
+				sleep(media.getMusicDuration());
+			}
 			exit();
 		}else if(weixinh==""){
-			log("请查看文档第"+i+"个选手是否有手机号");
-			device.vibrate(2000);
-			media.playMusic("http://lokami.cn/source/null.mp3");
-			sleep(media.getMusicDuration());
+			toastLog("请查看文档第"+i+"个选手是否有手机号");
+			if(ui.yuyin.checked){
+				device.vibrate(2000);
+				media.playMusic(audio+"手机号为空！请查看日志");
+				sleep(media.getMusicDuration());
+			}
 			exit();
 		}else{
 			setText(weixinh);
 		}
 		sleep(random(2000, 3000));
-		click("搜索");
+		while(!click("搜索"));
 		log(address+"编号 "+i+" 号"+"已搜索");
 		sleep(random(2000, 3000));
 		if(id(oo0).text("该用户不存在").exists()){
@@ -453,9 +492,11 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 			sleep(2000);
 			file.readline();
 			sleep(2000);
-			device.vibrate(2000);
-			media.playMusic("http://lokami.cn/source/pinfan.mp3");
-			sleep(media.getMusicDuration());
+			if(ui.yuyin.checked){
+				device.vibrate(2000);
+				media.playMusic(audio+"添加已频繁，请查看日志");
+				sleep(media.getMusicDuration());
+			}
 			log(address+"在" + file.readline() + "第"+i+" 编号停止");
 			back();
 			exit();
@@ -467,12 +508,12 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 			while(!back());
 		}else{
 			id(ooo).className("Button").text("添加到通讯录").clickable().click();
-			sleep(random(2000, 3000));
+			sleep(3000);
 			if(id(o0o).className("Button").text("发消息").exists()){
 				if (pb){
 					if (device.sdkInt < 24){
-						sleep(1000);
-						desc("更多").clickable().click();
+						sleep(2000);
+						desc("更多").className("ImageButton").clickable().click();
 						sleep(1000);
 						while(!click("设置朋友圈权限"));
 						sleep(1000);
@@ -480,7 +521,7 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 						Tap(pbpyq.centerX(), pbpyq.centerY());
 					}else{
 						sleep(1000);
-						desc("更多").clickable().click();
+						desc("更多").className("ImageButton").clickable().click();
 						sleep(1000);
 						while(!click("设置朋友圈权限"));
 						sleep(1000);
@@ -490,16 +531,20 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 						sleep(1000);
 						while(!back());
 				}
-				file.readline();
 				sleep(1000);
-				desc("更多").clickable().click();
+				desc("更多").className("ImageButton").clickable().click();
 				sleep(1000);
 				while(!click("设置备注及标签"));
 				sleep(random(3000, 4000));
 				setText(0, address);
 				sleep(1000);
+				var name = file.readline();
 				var tag = file.readline();
-				input(0, tag);
+				if(真名){
+					input(0, tag+name);
+				}else{
+					input(0, tag);
+				}
 				sleep(1000);
 				id(o00).className("TextView").text("完成").clickable().click();
 				log(address+"编号 "+i+" 号"+tag+"直接添加已备注");
@@ -519,18 +564,23 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 				sleep(random(2000, 3000));
 				setText(0, 开头);
 				sleep(random(3000, 4000));
-				input(0, file.readline());
+				var name = file.readline();
+				input(0, name);
 				sleep(random(2000, 3000));
 				input(0, 尾巴);
 				sleep(random(3000, 4000));
 				setText(1, address);
 				sleep(random(2000, 4000));
 				var tag = file.readline();
-				input(1, tag);
+				if(真名){
+					input(1, tag+name);
+				}else{
+					input(1, tag);
+				}
 				sleep(2000);
 				while(currentActivity() == "com.tencent.mm.plugin.profile.ui.SayHiWithSnsPermissionUI"){
 					id(o00).className("TextView").text("发送").clickable().click();
-					sleep(2000);
+					sleep(3000);
 				}
 				log(address+"编号 "+i+" 号"+tag+"已发送");
 				storages.create("weixin").put("start", i+1+"");
@@ -540,9 +590,11 @@ function 文档起止开编号(min, max, 开始, 开头, 尾巴, pb){
 		}
 	}
 	file.close();
-	device.vibrate(2000);
-	media.playMusic("http://lokami.cn/source/success.mp3");
-	sleep(media.getMusicDuration());
+	if(ui.yuyin.checked){
+		device.vibrate(2000);
+		media.playMusic(audio+"好友添加完毕，已结束");
+		sleep(media.getMusicDuration());
+	}
 	toast("完成");
 	back();
 	home();
